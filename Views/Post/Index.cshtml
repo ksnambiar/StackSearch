@@ -1,0 +1,153 @@
+@model PostController.PostsListViewModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+<link rel="stylesheet" href="~/css/stack-overflow-inspired.css" />
+
+<div class="container">
+    <div class="row">
+        <form asp-controller="Post" asp-action="Index" method="get">
+    <div class="row g-3" style="margin-bottom: 10px">
+        <div class="col-auto">
+        <input type="text" class="form-control" placeholder="Enter here!" title="Search" name="SearchString" />
+
+        </div>
+        <div class="col-auto">
+                    <input type="submit" class="btn btn-primary btn-sm" value="Search" />
+        </div>
+    </div>
+</form>
+    </div>
+    @if (Model.hasSearched)
+                        {
+                            @if(Model.hasSearched && Model.Posts.Count() == 0)
+                            {
+                                <h3>No posts found with the given criteria.</h3>
+                            }
+                            else {
+                                <div class="row">
+        <div class="col" id="posts-parent">
+            <div id="posts-container">
+    @foreach (var post in Model.Posts)
+    {
+        <div class="post post-box" style="margin-bottom:10px;border-bottom:solid 1px #ccc;">
+            <div style="height: 30px">
+                <div class="vote-count">@post.VoteCount votes</div>
+            </div>
+            <div class="post-body">
+                @if (post.Title != null)
+                        {
+                            <a href="#">@post.Title</a>
+                        } else {
+                            <h5>No Title</h5>
+                        }
+                        <span style="font-size: small;">@post.SummarisedBody ...</span>
+            </div>
+            
+            <div class="post-footer">
+                <div>
+                    <p class="tags" id="post-tags">Tags: @post.Tags</p>
+                </div>
+                <div>
+                    <div class="user-info">
+                        @if (post.UserName != null)
+                        {
+                            <span>@post.UserName</span>
+                        } else {
+                            <span>John Doe</span>
+                        }
+                        @* <button type="button" class="btn btn-success btn-sm"> *@
+                         <span class="badge rounded-pill bg-success" style="margin-left: 5px; margin-right: 5px">Reputation: @post.UserReputation</span>
+                        @* </button> *@
+                        @* <span class="reputation">(Reputation: @post.UserReputation)</span> *@
+                        @* <button type="button" class="btn btn-warning btn-sm"> *@
+                        <span class="badge rounded-pill bg-warning">Badges: @post.UserBadgeCount</span>
+                        @* </button> *@
+                        @* <span class="badge-count">(Badges: @post.UserBadgeCount)</span> *@
+                    </div>
+                </div>
+            </div>
+            @* <p>AnswerCount: @post.AnswerCount</p> *@  
+        </div>
+    }
+    
+</div>
+<div id="loading-message" class="loading-message" style="display: none;">Loading More Posts...</div>
+@if (Model.HasMore)
+{
+    @* <button id="load-more">Load More Posts</button> *@
+    <div id="load-more-sentinel"></div>
+}
+        </div>
+        
+    </div>
+                            }
+                        } else {
+                            <div>Please search for some posts</div>
+                        }
+    
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+@* $(document).ready(function() {
+    $("#load-more").click(function() {
+        console.log("posts length", $("#posts-container").children().length)
+        var currentSkip = $("#posts-container").children().length;
+        $.ajax({
+            url: "/Post/Index",
+            data: { skip: currentSkip },
+            success: function(data) {
+                var parsedData = $.parseHTML(data);
+                // Find the new posts container within the response
+                var newPosts = $(parsedData).find("#posts-container").children();
+                // Append only the new posts to the existing container
+                $("#posts-container").append(newPosts);
+            }
+        });
+    });
+}); *@
+$(window).scroll(function() {
+    var scrollHeight = $(document).height();
+    var scrollTop = $(window).scrollTop();
+    var windowHeight = $(window).height();
+    var searchString = new URLSearchParams(window.location.search).get('SearchString');
+    if (scrollTop + windowHeight >= scrollHeight - 50) { // Load 50px before reaching the end
+        if ($("#load-more-sentinel").length) {
+            var currentSkip = $("#posts-container").children().length;
+            $("#loading-message").show();
+            console.log("search String", searchString);
+            $.ajax({
+                url: "/Post/Index",
+                data: Object.assign({},{ skip: currentSkip }, searchString && {SearchString: searchString}),
+                success: function(data) {
+                    var parsedData = $.parseHTML(data);
+                    var newPosts = $(parsedData).find("#posts-container").children();
+                    $("#posts-container").append(newPosts);
+                    $("#loading-message").hide();
+                    @* tempAlert("Loaded your results",5000); *@
+                }
+            });
+            // Remove sentinel to prevent duplicate loads
+            $("#load-more-sentinel").remove();
+        }
+    } else {
+        // Add sentinel back if user scrolls up
+        if (!$("#load-more-sentinel").length) {
+            $("#posts-parent").append("<div id='load-more-sentinel'></div>");
+        }
+    }
+});
+@* function tempAlert(msg,duration)
+{
+ var el = document.createElement("div");
+ el.setAttribute("style","position:absolute;top:40%;left:20%;background-color:white;");
+ el.innerHTML = msg;
+ setTimeout(function(){
+  el.parentNode.removeChild(el);
+ },duration);
+ document.body.appendChild(el);
+} *@
+</script>
+</script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
