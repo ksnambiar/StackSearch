@@ -6,7 +6,7 @@ This is a basic ASP.NET MVC application used to search for posts from stackoverf
 
 1. Tools
     - Visual Studio or Visual Studio Code: You'll need Visual Studio with ASP.NET and Web Development workload installed.
-    - .NET SDK: Make sure you have the latest .NET SDK installed ([Download](https://dotnet.microsoft.com/en-us/download)).
+    - .NET SDK: Make sure you have the latest .NET SDK installed ([Download](https://dotnet.microsoft.com/en-us/download)). I am using net8.0
 2. Database
     - public Stack Overflow data export: you can download it from here [https://www.brentozar.com/archive/2015/10/how-to-download-the-stack-overflow-database-via-bittorrent/]
     - Setup MSSQL Database depending on your system.
